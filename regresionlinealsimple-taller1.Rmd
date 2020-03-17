@@ -1,33 +1,84 @@
 ---
 title: "Regresión Lineal simple taller#1"
 author: "Julián Camilo Riaño Moreno"
-date: "15/3/2020"
+date: "16/3/2020"
 output:
   pdf_document: default
   html_document: default
   word_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r Función para Regresión líneal simple y modelamiento, include=FALSE}
+RLsimple_f <- function(datos, xi, yi) {
+    require(ggplot2)
+    require(ggthemes)
+    p <- ggplot(datos, aes(x = get(xi),
+                        y = get(yi)))
+    Model <- lm(get(yi) ~ get(xi), data=datos)
+    Graphp <- p + 
+        geom_point() + 
+        geom_smooth(method = lm, se = TRUE, color = "darkred") +
+        theme_economist(base_size = 10, base_family = "sans", dkpanel = TRUE) +
+        scale_colour_economist()
+        
+    Graphp2 <- Graphp + labs(x = xi, y = yi,
+             title = paste('Gráfica regresión lineal simple: ', 
+                            xi, ' | ', yi, sep = ''),
+             caption = paste('Intercepto =',signif(Model$coef[[1]],5), 
+                                             '; Pendiente =',signif(Model$coef[[2]], 5),
+                                             '; Adj R2 =',signif(summary(Model)$adj.r.squared, 5), 
+                                             '; p =',signif(summary(Model)$coef[2,4], 5))) +
+        theme(
+            plot.title = element_text(size = 16, 
+                                      face = "bold", 
+                                      hjust = 0.5, 
+                                      vjust=2.5),
+            plot.caption = element_text(face = "italic", 
+                                        size = 10, 
+                                        hjust = 0.98, 
+                                        vjust=-2.5),
+            axis.ticks.length = unit(.15, "cm"),
+            axis.ticks.y = element_blank(),
+            axis.title.x = element_text(color = "black", 
+                                        size = 10,
+                                        face = "bold",
+                                        vjust = -1),
+            axis.title.y = element_text(color = "black",
+                                        size = 10,
+                                        face = "bold",
+                                        vjust = 3)
+        )
+        #geom_rug() + geom_density_2d() +
+    modelsumm <- (summary(Model))    
+    #print(modelsumm)
+    #print(modelsumm$coef)
+    print(Graphp2)
+}
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r Exploración de los datos, include=FALSE}
+geiserdat <- read.csv('geiser.csv')
+class(geiserdat)
+head(geiserdat)
+View(geiserdat)
 ```
 
-## Including Plots
+# Resumen de los datos del archivo geiser.csv
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r Análisis de los datos archivo geiser.csv, echo=FALSE}
+summary(geiserdat)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Gráfica de dispersión de los datos. 
+```{r imagen de gráfica para revisión de distribución de los datos, echo=FALSE}
+scatter.smooth(x=geiserdat$waiting, y=geiserdat$eruptions, main="eruptions ~ waiting")
+```
+
+# Gráfica de regresión lineal simple (utilizando formula desarrollo propio: 'RLsimple_f')
+```{r Gráficación de regresión líneal, echo=FALSE}
+RLsimple_f(geiserdat, 'eruptions', 'waiting')
+```
+
+
+
