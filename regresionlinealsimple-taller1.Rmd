@@ -3,9 +3,9 @@ title: "Regresión Lineal simple taller#1"
 author: "Julián Camilo Riaño Moreno"
 date: "16/3/2020"
 output:
-  word_document: default
   pdf_document: default
   html_document: default
+  word_document: default
 ---
 ```{r librerías requeridas para desarrollo de la actividad, include=FALSE}
 library(ggplot2)
@@ -87,7 +87,7 @@ Se observa en la base de datos entregada, 272 observaciones acerca de dos variab
 ## Gráfica de dispersión de los datos. 
 ```{r imagen de gráfica para revisión de distribución de los datos, echo=FALSE, fig.height= 4, fig.width=5, fig.align='center'}
 scplot <- ggplot(geiserdat1, aes(x = get('Número_erupciones'), 
-                                 y = get ('Tiempo_espera (min)')))+ geom_point()+ geom_smooth()
+                                 y = get ('Tiempo_espera (min)')))+ geom_point()+geom_smooth()
 
 scplot1 <- scplot + xlab('Número_erupciones') + ylab('Tiempo_espera (min)')+
   ggtitle("Gráfica de dispersión") + theme(plot.title = element_text(hjust = 0.5))
@@ -112,7 +112,15 @@ scplot3
 ```
 
 
-La gráfica de dispersión acá mostrada muestra que existe un agrupamiento entre las observaciones hacia los extremos, encontrandose que los "números de erupciones" menores se correlaciona con "tiempo de espera" menores; lo mismo ocurre para los "número de erupciones" mayores con "tiempo de espera mayor". Sin embargo esta correlación no puede explicarse para los valores intermedios. Por esta razón, pareciera que no hay un correlación entre las dos variables. 
+La gráfica de dispersión acá mostrada muestra que existe un agrupamiento entre las observaciones hacia los extremos, encontrandose que los "números de erupciones" menores se correlaciona con "tiempo de espera" menores; lo mismo ocurre para los "número de erupciones" mayores con "tiempo de espera mayor". Sin embargo esta correlación no puede explicarse para los valores intermedios. Por esta razón, pareciera que no hay un correlación entre las dos variables, para evaluar esto se aplica un coeficiente de correlación de Pearson. 
+
+```{r coeficiente de correlación, echo=FALSE}
+cor.test(geiserdat1$`Tiempo_espera (min)`, geiserdat1$`Número_erupciones`)
+
+```
+
+
+A través del indice de correlación de Pearson obtenido (0,9), con un valro de p (<0.05) de manera que es posible determinar una correlación positiva ($\approx 1$) entre las variables. 
 
 
   2. Construya un gráfico de dispersión que relacione la variable eruption y la variable waiting. ¿Es razonable suponer que existe una relación de dependencia lineal entre estas variables?
