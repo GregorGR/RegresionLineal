@@ -3,10 +3,15 @@ title: "Regresión Lineal simple taller#1"
 author: "Julián Camilo Riaño Moreno"
 date: "16/3/2020"
 output:
+  word_document: default
   pdf_document: default
   html_document: default
-  word_document: default
 ---
+```{r librerías requeridas para desarrollo de la actividad, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+```
 
 ```{r Función para Regresión líneal simple y modelamiento, include=FALSE}
 RLsimple_f <- function(datos, xi, yi) {
@@ -18,7 +23,7 @@ RLsimple_f <- function(datos, xi, yi) {
     Graphp <- p + 
         geom_point() + 
         geom_smooth(method = lm, se = TRUE, color = "darkred") +
-        theme_economist(base_size = 10, base_family = "sans", dkpanel = TRUE) +
+        theme_economist_white(base_size = 10, base_family = "sans", gray_bg = FALSE) +
         scale_colour_economist()
         
     Graphp2 <- Graphp + labs(x = xi, y = yi,
@@ -29,7 +34,7 @@ RLsimple_f <- function(datos, xi, yi) {
                                              '; Adj R2 =',signif(summary(Model)$adj.r.squared, 5), 
                                              '; p =',signif(summary(Model)$coef[2,4], 5))) +
         theme(
-            plot.title = element_text(size = 16, 
+            plot.title = element_text(size = 12, 
                                       face = "bold", 
                                       hjust = 0.5, 
                                       vjust=2.5),
@@ -49,36 +54,146 @@ RLsimple_f <- function(datos, xi, yi) {
                                         vjust = 3)
         )
         #geom_rug() + geom_density_2d() +
-    modelsumm <- (summary(Model))    
-    #print(modelsumm)
-    #print(modelsumm$coef)
     print(Graphp2)
 }
 ```
 
-```{r Exploración de los datos, include=FALSE}
+```{r Exploración de los datos, include=FALSE, echo=FALSE}
 geiserdat <- read.csv('geiser.csv')
-class(geiserdat)
-head(geiserdat)
-View(geiserdat)
+geiserdat1 <- data.frame(geiserdat$eruptions, geiserdat$waiting)
+colnames(geiserdat1) <- c("Número_erupciones", "Tiempo_espera (min)")
+
+class(geiserdat1)
+head(geiserdat1)
 ```
+# Actividad taller 1 regresión lineal simple 
 
-# Resumen de los datos del archivo geiser.csv
+Considere los datos del tiempo de espera entre erupciones y la duración de la erupción para el géiser Old Faithful en el Parque Nacional de Yellowstone, Wyoming, EE.UU.
 
+  1. Realice un análisis exploratorio de la base de datos.
+
+## Resumen de los datos del archivo geiser.csv
 
 ```{r Análisis de los datos archivo geiser.csv, echo=FALSE}
-summary(geiserdat)
+
+ knitr::kable(summary(geiserdat1), caption = "Resumen datos data.frame")
+
 ```
 
-# Gráfica de dispersión de los datos. 
-```{r imagen de gráfica para revisión de distribución de los datos, echo=FALSE}
-scatter.smooth(x=geiserdat$waiting, y=geiserdat$eruptions, main="eruptions ~ waiting")
+
+Se observa en la base de datos entregada, 272 observaciones acerca de dos variables, a saber: variable "Número de erupciones" y la "tiempo de espera". La primera es una varible cuantitativa discreta y la segunda corresponde a una variable cuantitativa continua. La descripción de las variables se puede encontrar en la tabla 1. En dicha tabla se observa una media aproximada de 3.5 erupciones con una mediana de 4, por otra parte, la media de tiempo de espera es de 70.9 minutos con una mediana de 16 minutos. Para determinar si existe alguna correlación entre dichas variables se decide realizar una gráfica de dispesión, que será descrita a continuación. 
+
+
+## Gráfica de dispersión de los datos. 
+```{r imagen de gráfica para revisión de distribución de los datos, echo=FALSE, fig.height= 4, fig.width=5, fig.align='center'}
+scplot <- ggplot(geiserdat1, aes(x = get('Número_erupciones'), 
+                                 y = get ('Tiempo_espera (min)')))+ geom_point()+ geom_smooth()
+
+scplot1 <- scplot + xlab('Número_erupciones') + ylab('Tiempo_espera (min)')+
+  ggtitle("Gráfica de dispersión") + theme(plot.title = element_text(hjust = 0.5))
+
+scplot2 <- scplot1 + theme(
+            plot.title = element_text(size = 12, 
+                                      face = "bold", 
+                                      hjust = 0.5, 
+                                      vjust=2.5),
+            axis.ticks.length = unit(.15, "cm"),
+            axis.ticks.y = element_blank(),
+            axis.title.x = element_text(color = "black", 
+                                        size = 10,
+                                        face = "bold",
+                                        vjust = -1),
+            axis.title.y = element_text(color = "black",
+                                        size = 10,
+                                        face = "bold",
+                                        vjust = 3))
+scplot3 <- scplot2 + geom_density_2d()
+scplot3
 ```
 
-# Gráfica de regresión lineal simple (utilizando formula desarrollo propio: 'RLsimple_f')
+
+La gráfica de dispersión acá mostrada muestra que existe un agrupamiento entre las observaciones hacia los extremos, encontrandose que los "números de erupciones" menores se correlaciona con "tiempo de espera" menores; lo mismo ocurre para los "número de erupciones" mayores con "tiempo de espera mayor". Sin embargo esta correlación no puede explicarse para los valores intermedios. Por esta razón, pareciera que no hay un correlación entre las dos variables. 
+
+
+  2. Construya un gráfico de dispersión que relacione la variable eruption y la variable waiting. ¿Es razonable suponer que existe una relación de dependencia lineal entre estas variables?
+
+## Gráfica de regresión lineal simple (utilizando formula desarrollo propio: `RLsimple_f`)
+
 ```{r Gráficación de regresión líneal, echo=FALSE}
-RLsimple_f(geiserdat, 'eruptions', 'waiting')
+
+RLsimple_f(geiserdat1, 'Número_erupciones', 'Tiempo_espera (min)')
+
 ```
 
+
+Se realizó un gráfica siguiendo ajustada el modelo lineal utilizado por R (modelo por mínimos cuadrados). Dónde a partir de la linea regresora (en rojo) resultante es posible, establecer que existe una dependencia lineal entre las variables, esto comprendiendo que los errores de las observaciones no están alejadas de la linea regresora y su desviación estandar. 
+
+
+
+  3. Ajuste un modelo de regresión lineal que relacione el tiempo de espera con la duración de la erupción. Interprete los parámetros del modelo.
+
+##Ajuste del modelo de regresión lineal
+
+```{r Modelo de regresión lineal, echo=FALSE}
+
+ModelRLS <- lm(geiserdat1$`Tiempo_espera (min)` ~ geiserdat1$`Número_erupciones`, data=geiserdat1)
+Mod_res <- summary(ModelRLS)  
+ParMod_res <- data.frame(Mod_res$coefficients)
+rownames(ParMod_res) <- c("$\\beta_0$", "$\\beta_1$")
+colnames(ParMod_res) <- c("Estimado", "ErrorStand", "t-value", "p-value")
+ParMod_res1 <- ParMod_res[c("Estimado", "ErrorStand")]
+knitr::kable(ParMod_res1, 
+             caption = 'Estimaciones de parametros de la regresión', 
+             digits = 3)
+
+```
+
+
+Como se puede observar en la tabla 2. A partir del ajuste del modelo lineal y la identificación de los parametros: $\beta_0$ (entendida como el intercepto de la lineal regresora) y $\beta_1$ (entendida como la pendiente de la linea regresora). encontrando que $\beta_0$ es 33, 474 y $\beta_1$ es 10.730, lo que al asumir una correlación lineal supone que el incremento en una unidad de el "tiempo de espera" (un minuto) se puede incrementar el número de erupciones aproximadamente 10 veces. 
+
+  4. Utilice las pruebas t para evaluar la contribución de cada variable regresora al modelo. Discuta sus hallazgos. 
+
+
+```{r echo=FALSE}
+tval <- ParMod_res[c("t-value", "p-value")]
+rownames(ParMod_res) <- c("$\\beta_0$", "$\\beta_1$")
+knitr::kable(tval, caption = 't-values para los parametros dados', digits = c(3, 100))
+```
+
+
+La tabla 3 por su parte los valores de t y su respectiva signifcancia en el modelo lineal ajustado. A través de una prueba de hipotesis dónde: 
+
+$$
+H_o = \beta_0 =  0 \\
+$$
+$$
+H_1 = \beta_0 \neq 0
+$$
+
+En este primer escenario se rechaza la hipotesis nula, ya que, $\beta_0$ (33,474), es un valor mayor a 0, con un valor de p significativo. 
+
+
+$$
+H_o = \beta_1 =  0 \\
+$$
+$$
+H_1 = \beta_1 \neq 0
+$$
+En este segundo escenario se rechaza la hipotesis nula, ya que, $\beta_0$ (10.730), es un valor mayor a 0, con un valor de p significativo. 
+
+Así pues es posible realizar una correlación entre las variables estudiadas dado que la pendiente y el intercepto son aceptados en la prueba de hipotesis, de manera que la variable regresora tiene un efecto importante en la variable respuesta.
+
+
+  5. ¿Tiene el modelo obtenido un buen ajuste?. Justifique su respuesta.
+  
+Finalmente al revisar el valor de $r^2$ obtenido: 
+
+```{r echo=FALSE}
+
+Mod_res$adj.r.squared
+
+```
+
+Es posible inferir que el modelo lineal utilizado para este caso puede explicar que aproximadamente el 81% de la varianza de la variable respuesta "número de erupciones" es consecuencia a la variable regresora "tiempo de espera". De manera que sería posible afirmar que el modelo está bien ajustado. El resto de la varianza resultante puede ser explicado por otras variables que no se han tenido encuenta en el modelo o por azar. 
 
 
